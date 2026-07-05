@@ -55,32 +55,31 @@ st.write("Click the button below to process the profile customized in the left s
 
 # 6. Predict Button Action & Interactive UI Responses
 if st.sidebar.button("🚀 Process Churn Analysis", use_container_width=True):
-    # Prepare the data
+    # Prepare the data matrix matching the model's training columns exactly
     input_data = pd.DataFrame(0, index=[0], columns=feature_columns)
-    input_data['tenure'] = tenure
-    input_data['MonthlyCharges'] = monthly_charges
     
-    if internet_service == "Fiber optic":
-        input_data['InternetService_Fiber optic'] = 1
-    elif internet_service == "No internet service":
-        input_data['InternetService_No internet service'] = 1
-        
-    if payment_method == "Electronic check":
-        input_data['PaymentMethod_Electronic check'] = 1
-    elif payment_method == "Mailed check":
-        input_data['PaymentMethod_Mailed check'] = 1
-    elif payment_method == "Credit card (automatic)":
-        input_data['PaymentMethod_Credit card (automatic)'] = 1
+    # Map numerical inputs dynamically, matching the training features exact string case
+    for col in input_data.columns:
+        if col.lower() == 'tenure':
+            input_data[col] = tenure
+        elif col.lower() == 'monthlycharges':
+            input_data[col] = monthly_charges
 
-    # Run predictions
+    # Dynamically search training features to set categorical bits to 1 based on user selections
+    for col in feature_columns:
+        if internet_service in col:
+            input_data[col] = 1
+        if payment_method in col:
+            input_data[col] = 1
+
+    # Run predictions securely
     prediction = model.predict(input_data)[0]
     probability = model.predict_proba(input_data)[0][1]
 
-    # Render beautiful layout results based on output
+    # Render layout results
     if prediction == 1:
         st.error(f"### ⚠️ Alert: High Churn Risk Detected!")
         
-        # Split results into a clean text / progress bar block
         res_col1, res_col2 = st.columns([1, 2])
         with res_col1:
             st.write(f"The model has determined a **{probability*100:.1f}%** mathematical probability that this user will abandon their subscription.")
