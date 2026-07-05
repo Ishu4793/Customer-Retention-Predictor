@@ -12,7 +12,7 @@ st.set_page_config(
 # 2. Train the model in the background
 @st.cache_resource
 def load_and_train_model():
-    df = pd.read_excel('data/churn_data.csv.xlsx')
+    df = pd.read_csv('data/telco_customer_data.csv')
     df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
     X = df.drop(columns=['customerID', 'Churn'])
     X = pd.get_dummies(X, drop_first=True)
